@@ -3,7 +3,6 @@ import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import { PluginInputs } from "./types/plugin-input";
 import { Context } from "./types/context";
-import { generateErc20PermitSignature } from "./handlers/generate-erc20-permit-signature";
 
 async function run() {
   const webhookPayload = github.context.payload.inputs;
@@ -40,14 +39,7 @@ async function run() {
       },
     },
   };
-
-  const permit = await generateErc20PermitSignature(context);
-
-  if (permit) {
-    return JSON.stringify(permit);
-  }
-
-  return "No permit generated";
+  console.log(context);
 }
 
 run()
