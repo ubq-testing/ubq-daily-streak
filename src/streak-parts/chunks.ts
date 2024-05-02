@@ -52,15 +52,89 @@
  * - Avg priority allocated : Avg time taken
  */
 
-function ms(time: number) {
-  return time * 60 * 60 * 1000;
+import { writeFile } from "fs/promises";
+import { PublicEventTypes } from "../types/github";
+
+type Chunk = {
+  start: Date;
+  end: Date;
+  events: PublicEventTypes[];
+  workable: boolean;
+};
+
+export const ONTIME = ms(24 / 3); // 8 hours
+export const OFFTIME = ms((24 * 2) / 3); // 16 hours
+export const GRACE_PERIOD_RESET = ms(14 * 24); // 14 days
+export const GRACE_PERIOD = ms(2 * 24); // 2 days
+export const GRACE_PERIOD_DECAY = ms(24); // 1 day
+
+export async function chunker(timeline: Record<string, unknown[]>) {
+  const chunks = timelineChunker(timeline);
+
+  console.log(chunks);
+  await writeFile("chunks.json", JSON.stringify(chunks, null, 2));
+  return chunks;
 }
 
-const ONTIME = ms(24 / 3); // 8 hours
-const OFFTIME = ms((24 * 2) / 3); // 16 hours
-const GRACE_PERIOD_RESET = ms(14 * 24); // 14 days
-const GRACE_PERIOD = ms(2 * 24); // 2 days
-const GRACE_PERIOD_DECAY = ms(24); // 1 day
+/**
+ * Takens a complete timeline regardless of distance between events
+ * and creates chunks of time based on the ONTIME and OFFTIME constants.
+ *
+ * Activity on 01/01/2022 00:00:00 will be in chunk 0
+ * Activity on 01/01/2022 08:00:00 will be in chunk 1
+ * ...
+ * Activity on 01/01/2024 08:00:00 will be in chunk 730
+ *
+ */
+
+function timelineChunker(timeline: Record<string, unknown[]>) {
+  const chunks: Record<string, Chunk[]> = {};
+
+  for (const repo of Object.keys(timeline)) {
+    const events = timeline[repo] as PublicEventTypes[];
+    // backout if no timeline
+    if (events.length === 0) {
+      continue;
+    }
+
+    chunks[repo] = [];
+
+    for (const event of events) {
+      const date = new Date(event.created_at);
+      const chnks = chunkify(chunks, repo, date, event);
+      chunks[repo] = chnks[repo];
+    }
+
+    chunks[repo] = nullChunkBuster(chunks[repo]);
+  }
+
+  return chunks;
+}
+
+/**
+ * Takes an array of chunks and removes any null values.
+ */
+function nullChunkBuster(chunks: Chunk[]) {
+  return chunks.filter((chunk) => chunk !== null);
+}
+
+function chunkify(chunks: Record<string, Chunk[]>, repo: string, date: Date, event: PublicEventTypes) {
+  const chunkIndex = dateToChunk(date);
+  const chunk = chunks[repo][chunkIndex];
+
+  if (!chunk) {
+    chunks[repo][chunkIndex] = {
+      start: chunkToDate(chunkIndex),
+      end: chunkToDate(chunkIndex + 1),
+      events: [event],
+      workable: chunkIndex % 3 === 1,
+    };
+  } else {
+    chunk.events.push(event);
+  }
+
+  return chunks;
+}
 
 /**
  * Converts a given date into a chunk index based on a specific time interval.
@@ -82,12 +156,6 @@ export function chunkToDate(chunk: number): Date {
   return new Date(chunk * ONTIME);
 }
 
-/**
- * Returns the chunk index of the last workable chunk.
- * @notice maps a date to a non-workable chunk index
- * @param date The date to be converted.
- * @returns The chunk index.
- */
-export function lastWorkableChunk(date: Date): number {
-  return Math.floor(date.getTime() / OFFTIME);
+export function ms(time: number) {
+  return time * 60 * 60 * 1000;
 }

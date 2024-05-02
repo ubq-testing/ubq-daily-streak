@@ -1,13 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import { Activity } from "../types/structures";
-import { PublicEventTypes } from "../types/github";
-
-type Chunk = {
-  start: Date;
-  end: Date;
-  events: PublicEventTypes[];
-  workable: boolean;
-};
+import { chunker } from "./chunks";
 
 /**
  * Fetches activity data for a user from GitHub.
@@ -76,30 +69,4 @@ export async function fetchActivityData(octokit: Octokit, user: string, org: str
   }
 
   const chunks = await chunker(repoActivityTimeline);
-
-  // chunks[repo][chunkIndex] = { start, end, events, workable }
-  const chunks: Record<string, Chunk[]> = {};
-}
-
-async function chunker(timeline: Record<string, unknown[]>) {
-  const chunks: Record<string, Chunk[]> = {};
-
-  for (const repo of Object.keys(timeline)) {
-    if (!timeline[repo]) {
-      continue;
-    }
-
-    chunks[repo] = [];
-
-    let chunk: Chunk = {
-      start: new Date(),
-      end: new Date(),
-      events: [],
-      workable: false,
-    };
-
-    chunks[repo].push(chunk);
-  }
-
-  return chunks;
 }
