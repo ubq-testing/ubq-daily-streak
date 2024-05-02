@@ -8,7 +8,7 @@ export enum UserType {
   Organization = "Organization",
 }
 
-export type PublicEventTypes =
+export type PublicEvents =
   | IssueCommentEvent
   | PushEvent
   | PullRequestReviewCommentEvent //  created >:( "comment" & "pull_request" in payload
@@ -17,7 +17,16 @@ export type PublicEventTypes =
   | IssuesEvent // open | closed
   | CreateEvent; // creating a new branch (start tracking from here)
 
-type IssueCommentEvent = {
+export type PublicEventTypes =
+  | "IssueCommentEvent"
+  | "PushEvent"
+  | "PullRequestReviewCommentEvent"
+  | "PullRequestReviewEvent"
+  | "PullRequestEvent"
+  | "IssuesEvent"
+  | "CreateEvent";
+
+export type IssueCommentEvent = {
   id: string;
   type: "IssueCommentEvent";
   actor: {
@@ -158,7 +167,7 @@ type IssueCommentEvent = {
   };
 };
 
-type PushEvent = {
+export type PushEvent = {
   id: string;
   type: "PushEvent";
   actor: {
@@ -197,7 +206,7 @@ type PushEvent = {
   created_at: string;
 };
 
-type User = {
+export type User = {
   login: string;
   id: number;
   node_id: string;
@@ -218,7 +227,7 @@ type User = {
   site_admin: boolean;
 };
 
-type ShaRefs = {
+export type ShaRefs = {
   label: string;
   ref: string;
   sha: string;
@@ -305,7 +314,7 @@ type ShaRefs = {
   };
 };
 
-type PullRequest = {
+export type PullRequest = {
   url: string;
   id: number;
   node_id: string;
@@ -369,7 +378,7 @@ type PullRequest = {
   active_lock_reason: null;
 };
 
-type Org = {
+export type Org = {
   id: number;
   login: string;
   gravatar_id: string;
@@ -377,7 +386,7 @@ type Org = {
   avatar_url: string;
 };
 
-type Actor = {
+export type Actor = {
   id: number;
   login: string;
   display_login: string;
@@ -386,7 +395,7 @@ type Actor = {
   avatar_url: string;
 };
 
-type PullRequestReviewCommentEvent = {
+export type PullRequestReviewCommentEvent = {
   id: string;
   type: "PullRequestReviewCommentEvent";
   actor: Actor;
@@ -454,7 +463,7 @@ type PullRequestReviewCommentEvent = {
   org: Org;
 };
 
-type PullRequestReviewEvent = {
+export type PullRequestReviewEvent = {
   id: string;
   type: "PullRequestReviewEvent";
   actor: Actor;
@@ -492,7 +501,7 @@ type PullRequestReviewEvent = {
   org: Org;
 };
 
-type PullRequestEvent = {
+export type PullRequestEvent = {
   id: string;
   type: "PullRequestEvent";
   actor: Actor;
@@ -511,7 +520,7 @@ type PullRequestEvent = {
   org: Org;
 };
 
-type Issue = {
+export type Issue = {
   url: string;
   repository_url: string;
   labels_url: string;
@@ -553,7 +562,7 @@ type Issue = {
   state_reason: any;
 };
 
-type IssuesEvent = {
+export type IssuesEvent = {
   id: string;
   type: "IssuesEvent";
   actor: Actor;
@@ -571,7 +580,7 @@ type IssuesEvent = {
   org: Org;
 };
 
-type CreateEvent = {
+export type CreateEvent = {
   id: string;
   type: "CreateEvent";
   actor: Actor;
