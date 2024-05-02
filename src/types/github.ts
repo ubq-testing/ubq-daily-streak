@@ -333,10 +333,10 @@ export type PullRequest = {
   closed_at: string;
   merged_at: string;
   merge_commit_sha: string;
-  assignee: null;
-  assignees: any[];
-  requested_reviewers: any[];
-  requested_teams: any[];
+  assignee: User;
+  assignees: User[];
+  requested_reviewers: User[];
+  requested_teams: User[];
   labels: any[];
   milestone: null;
   draft: boolean;
