@@ -1,10 +1,7 @@
-import { Octokit } from "@octokit/rest";
-import { fetchActivityData } from "./fetch-activity-data";
 import { StreakInfo } from "./streak-info";
+import { Activity } from "../types/structures";
 
-export async function findStreaks(octokit: Octokit, user: string, org: string, gracePeriodLimit = 2): Promise<StreakInfo[]> {
-  const activities = await fetchActivityData(octokit, user, org);
-
+export async function findStreaks(activities: Activity[], gracePeriodLimit = 2): Promise<StreakInfo[]> {
   const streaks: StreakInfo[] = [];
   activities.sort((a, b) => a.date.getTime() - b.date.getTime());
 

@@ -18,9 +18,7 @@ export async function getStreaks() {
 
   const activities = await fetchActivityData(octokit, user, org);
 
-  const streaks = await findStreaks(octokit, user, org);
-
-  console.log(activities);
+  const streaks = await findStreaks(activities);
 
   const formattedStreaks = streaks
     // filter out streaks that are less than 2 days
